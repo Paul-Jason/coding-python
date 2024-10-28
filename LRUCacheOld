@@ -1,0 +1,113 @@
+class LRUCache {
+
+    Node head = null, tail = null;
+    Map map = null;
+    int capacityCopy = 0;
+
+    public LRUCache(int capacity) {
+        this.map = new HashMap<Integer, Integer>(capacity);
+        this.capacityCopy = capacity;
+    }
+
+    public int get(int key) {
+        if(map.containsKey(key)){
+            removeIfNodeIsPresentAlready();
+            if(head == null){
+                head = new Node(key);
+                tail = head;
+            } else {
+                Node newTail = new Node(key);
+                tail = newTail;
+            }
+            return (int) map.get(key);
+        } else {
+            return -1;
+        }
+    }
+
+    // LL = 2,1
+    // Mp = [1,1],[2,2]
+
+    public void put(int key, int value) {
+        // update LL
+        if(head == null){
+            head = new Node(key);
+            tail = head;
+        }
+        else{
+            Boolean isPresent = removeIfNodeIsPresentAlready();
+            if(!isPresent){
+                // remove head
+
+            }
+            if(head == null){
+                head = new Node(key);
+                tail = head;
+            } else{
+                tail.next = new Node(key);
+                tail = tail.next;
+            }
+        }
+        // update map
+        if(map.size() == capacityCopy){
+            map.remove(key);
+        }
+        map.put(Integer.valueOf(key), Integer.valueOf(value));
+    }
+
+    public Boolean removeIfNodeIsPresentAlready(int key){
+        if(head != null){
+            if(head == tail){
+                // only one node is present
+                if(head.key == key){
+                    head = null;
+                    tail = null;
+                    return true;
+                }
+                else return false;
+            }
+            // more than one node
+            else if(head.key == key){
+                Node newHead = head.next;
+                head.next = null;
+                head = newHead;
+                return true;
+            } else {
+                Node slow = head, fast = head.next;
+                while(fast != null && fast.key != key){
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+                if(fast.key == key){
+                    if(fast != tail){
+                        // if fast is not tail
+                        slow.next = fast.next;
+                        fast.next = null;
+                        tail.next = fast;
+                        tail = fast;
+                    } else {
+                        slow.next = null;
+                        tail = slow;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+}
+
+class Node{
+    int key;
+    Node next;
+    Node(int key){
+        this.key = key;
+    }
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
